@@ -4,7 +4,7 @@ from json import loads
 consumer = KafkaConsumer(
     'first_kafka_topic',
      bootstrap_servers=['localhost:9092'],
-     auto_offset_reset='earliest',
+     auto_offset_reset='earliest', #  or latest 
      enable_auto_commit=True,
      group_id='my-group',
      value_deserializer=lambda x: loads(x.decode('utf-8')))
