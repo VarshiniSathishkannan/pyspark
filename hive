@@ -1,0 +1,335 @@
+beeline -u jdbc:hive2://
+
+create database emp;  -- stores in default locatio - /user/hive/warehouse
+
+create database users location '/user/hive/data'; 
+
+show create database users;
+
++--------------------------------------+
+|            createdb_stmt             |
++--------------------------------------+
+| CREATE DATABASE `users`              |
+| LOCATION                             |
+|   'hdfs://pyspark-m/user/hive/data'  |
++--------------------------------------+
+
+describe database emp;
+
++----------+----------+----------------------------------------------+-------------+-------------+-------------+
+| db_name  | comment  |                   location                   | owner_name  | owner_type  | parameters  |
++----------+----------+----------------------------------------------+-------------+-------------+-------------+
+| emp      |          | hdfs://pyspark-m/user/hive/warehouse/emp.db  | root        | USER        |             |
++----------+----------+----------------------------------------------+-------------+-------------+-------------+
+
+drop database emp restrict; -- or cascade
+
+--  RESTRICT prevents the operation from occurring if there are dependent privileges, and CASCADE causes dependent privileges to be deleted
+
+-- Hive supports many types of tables like Managed, External, Temporary and Transactional tables
+
+-- Hive managed table is also called the Internal table where Hive owns and manages the metadata and actual table data/files on HDFS.
+
+CREATE [TEMPORARY] [EXTERNAL] TABLE [IF NOT EXISTS] [db_name.] table_name
+[(col_name data_type [column_constraint] [COMMENT col_comment], ...)]
+[PARTITIONED BY (col_name data_type [COMMENT 'col_comment'], ...)]
+[CLUSTERED BY (col_name, col_name,.......]
+[COMMENT table_comment]
+[ROW FORMAT row_format]
+[FIELDS TERMINATED BY char]
+[LINES TERMINATED BY char]
+[LOCATION 'hdfs_path']
+[STORED AS file_format]
+
+-- By default Hive use ^A field separator
+
+create table country(
+name string,
+code string
+)
+row format delimited
+fields terminated by ','
+;
+
+load data local inpath '/country.csv' into table emp.country;
+
+select * from emp.country;
+
+-- Using EXTERNAL option you can create an external table, 
+-- Hive doesn’t manage the external table, 
+-- when you drop an external table, only table metadata from Metastore will be removed but the underlying files will not be removed and still they can be accessed via HDFS commands, Pig, Spark or any other Hadoop compatible tools.
+
+create external table months(
+ name string,
+ abbr string,
+ num1 int,
+ num2 int
+ )
+ row format delimited
+ fields terminated by ','
+ ;
+
+ load data local inpath '/month.csv' into table emp.months;
+
+ drop table emp.months;
+
+ -- file still exists in hdfs location 
+
+-- temporary table exists only during the current session
+-- upon exiting the session the temporary tables will be removed and cannot be accessed in another session.
+-- limitations - cannot create partitioned table. indexes are not supported
+-- If you create a temporary table name same as the permanent table name, you cannot access the permanent table until you drop a temporary table or rename it to a different name.
+
+create temporary table months(
+ name string,
+ abbr string,
+ num1 int,
+ num2 int
+ )
+ row format delimited
+ fields terminated by ','
+ ;
+
+ --We can also create temporary external table
+
+ create temporary external table temp like months;
+
+--  Hive 4.0 supports another type of table called a Transactional table, 
+-- Transactional Tables have support ACID operations like Insert, Update and Delete operations.
+
+create transactional table months(
+ name string,
+ abbr string,
+ num1 int,
+ num2 int
+ )
+ row format delimited
+ fields terminated by ','
+ ;
+
+
+create table months(
+ name string,
+ abbr string,
+ num1 int,
+ num2 int
+ )
+ row format delimited
+ fields terminated by ','
+ ;
+
+create table month_1 as select name, abbr, num1 as num from emp.months;
+
+-- CTAS has these restrictions:
+
+-- The target table cannot be an external table.
+-- The target table cannot be a list bucketing table.
+
+create table month_2 like month_1;
+
+drop table month_2 purge;
+
+-- You can use PURGE option to not move the data to .Trash directory, the data will be permanently removed and it can not be recovered.
+
+DROP DATABASE emp CASCADE; 
+
+-- default is restrict, if database has tables in it, by default it throws error,
+-- we can override it by using cascade option
+
+create table country_full(
+ name string,
+ abbr2 string,
+ abbr3 string,
+ code int,
+ iso string,
+ subregion string,
+ intermediateregion string,
+ regioncode int,
+ subregioncode int,
+ intermediateregioncode int
+ )
+ partitioned by (region string)
+ row format delimited
+ fields terminated by ','
+ ;
+
+ -- While loading data into the partitioned table, the partitioning column should be the last column in the file
+
+ -- if that is not the case, create a temp table without partition and load the data, then insert using select statement
+
+
+create table country_full_temp(
+ name string,
+ abbr2 string,
+ abbr3 string,
+ code int,
+ iso string,
+ region string,
+ subregion string,
+ intermediateregion string,
+ regioncode int,
+ subregioncode int,
+ intermediateregioncode int
+ )
+ row format delimited
+ fields terminated by ','
+ ;
+
+ load data local inpath '/country_full.csv' into table country_full_temp;
+
+create table country_full(
+ name string,
+ abbr2 string,
+ abbr3 string,
+ code int,
+ iso string
+ )
+ partitioned by (region string)
+ row format delimited
+ fields terminated by ','
+ ;
+
+--  Dynamic partitioning is the strategic approach to load the data from the non-partitioned table where the single insert to the partition table is called a dynamic partition
+
+set hive.exec.dynamic.partition=true;    
+set hive.exec.dynamic.partition.mode=nonstrict; 
+
+insert into country_full partition(region) select name, abbr2, abbr3, code, iso, region from country_full_temp;
+
+insert overwrite table country_full partition(region) select name, abbr2, abbr3, code, iso, region from country_full_temp where region is not null;
+
+-- static partition is when we load the data into different partitions manually. 
+-- If we have files already partitioned
+
+-- Create 4 different files containing data of students from respective sections (student-A, student-B, student-C, student-D) 
+-- make sure that section column which is our partition column is never added to the actual table
+
+-- Do not provide the partitioned columns name in create table <table-name> statement.
+
+LOAD DATA LOCAL INPATH '/home/dikshant/Documents/student_A' INTO TABLE student
+partition(section = "A");
+
+LOAD DATA LOCAL INPATH '/home/hive/data.csv' OVERWRITE INTO TABLE emp.employee;
+
+LOAD DATA LOCAL INPATH '/home/hive/data.csv' OVERWRITE INTO TABLE emp.employee PARTITION(date=2020);
+
+INSERT INTO zipcodes PARTITION(state='FL') VALUES 
+(891,'US','TAMPA',33605);
+
+INSERT INTO zipcodes PARTITION(state) VALUES 
+(891,'US','TAMPA',33605,'FL');
+
+-- Export Table into CSV File on HDFS
+
+insert overwrite directory '/user/neeleshmgr/' row format delimited fields terminated by ',' select * from emp.country_full; 
+
+insert overwrite local directory '/user/neeleshmgr/' row format delimited fields terminated by ',' select * from emp.country_full;
+
+-- If you have a huge table, this exports the data into multiple part files, You can combine them into a single file using Unix cat command as shown below.
+
+-- cat /tmp/export/* > output.csv
+
+alter table country_full add partition (region = 'temp');
+
+alter table country_full drop partition (region = 'temp');
+
+alter table country_full partition(region = 'temp') rename to partition(region = 'unknown');
+
+-- Alternatively, you can also rename the partition directory on the HDFS.
+
+-- hdfs dfs -mv /user/hive/warehouse/zipcodes/state=NY /user/hive/warehouse/zipcodes/state=AL
+
+-- When you manually add the partitions directly on HDFS, you need to run MSCK REPAIR TABLE to update the Hive Metastore. Not doing so will result in inconsistent results.
+
+-- msck repair will not work if partitions were deleted
+
+-- Starting with Hive 3.0.0 MSCK can now discover new partitions or remove missing partitions (or both) using the following syntax :
+
+-- MSCK [REPAIR] TABLE table_name [ADD/DROP/SYNC PARTITIONS]
+
+-- MSCK REPAIR TABLE country_full DROP PARTITIONS;
+
+-- in case of deletion of partitions manually, create an external table and run msck repair on it
+
+create external table country_dup(
+ name string,
+ abbr2 string,
+ abbr3 string,
+ code int,
+ iso string
+ )
+ partitioned by (region string)
+ row format delimited
+ fields terminated by ','
+ location '/user/hive/warehouse/emp.db/country_full/'
+ ;
+
+ msck repair table emp.country_dup;
+
+ show partitions emp.country_dup;
+
+-- bucketing or clustering
+
+-- Create a bucket on top of the Partitioned table to further divide the table for better query performance.
+-- Create Bucketing on the table where you cannot choose the partition column due to (too many distinct values on columns).
+
+CREATE TABLE zipcodes(
+RecordNumber int,
+Country string,
+City string,
+Zipcode int)
+PARTITIONED BY(state string)
+CLUSTERED BY (Zipcode) INTO 32 BUCKETS
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ',';
+
+create table country_buck(
+ name string,
+ abbr2 string,
+ abbr3 string,
+ code int,
+ iso string,
+ region string
+ )
+ clustered by (region) into 10 buckets
+ row format delimited
+ fields terminated by ','
+ ;
+
+--  Since our zipcode is partitioned on state and bucketing on zipcode, if you use these columns on where condition your query returns faster results.
+
+-- hash_function(bucketing_column) mod num_buckets
+
+-- How to Decide the Number of Buckets?
+
+-- Answer :
+
+-- Lets take a scenario Where table size is: 2300 MB, HDFS Block Size: 128 MB
+
+-- Now, Divide 2300/128=17.96
+
+-- Now, remember number of bucket will always be in the power of 2.
+
+-- So we need to find n such that 2^n > 17.96
+
+-- n=5
+
+-- So, I am going to use number of buckets as 2^5=32.
+
+-- Difference between partitioning and bucketing 
+
+-- partitioning
+
+-- Directory is created on HDFS for each partition.	
+-- You can have one or more Partition columns	
+-- You can’t manage the number of partitions to create	
+
+-- Bucketing
+
+-- File is created on HDFS for each bucket.
+-- You can have only one Bucketing column
+-- You can manage the number of buckets to create by specifying the count
+-- Bucketing can be created on a partitioned table
+
+-- Hive supports many build in functions just like mysql
+
