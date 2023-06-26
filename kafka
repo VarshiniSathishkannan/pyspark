@@ -16,3 +16,47 @@ kafka-console-producer.sh --bootstrap-server localhost:9092 --topic first_kafka_
 
 kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic first_kafka_topic
 
+
+
+On Google VM
+
+wget https://dlcdn.apache.org/kafka/3.5.0/kafka_2.13-3.5.0.tgz
+tar -xvf kafka_2.13-3.5.0.tgz
+
+cd kafka_2.13-3.5.0
+
+sudo apt update
+sudo apt install default-jdk
+
+java -version
+
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+zooker will be running in one session 
+
+Open another window to start kafka
+
+export KAFKA_HEAP_OPTS="-Xmx256M -Xms128M"
+cd kafka_2.13-3.5.0/
+
+Since internal ip cannot be opened, we have to use the external IP address of the machine 
+
+vi config/server.properties
+
+uncomment and change ADVERTISED_LISTENERS to public ip address
+
+let the kafka server keep running in this session 
+
+create a new session and start a topic
+
+bin/kafka-topics.sh --create --topic testing --bootstrap-server 104.154.44.58:9092 --replication-factor 1 --partitions 1
+
+bin/kafka-console-producer.sh --topic testing --bootstrap-server 104.154.44.58:9092 
+
+bin/kafka-console-consumer.sh --topic testing --bootstrap-server 104.154.44.58:9092 
+
+pip install kafka-python
+
+ bin/kafka-topics.sh --list --bootstrap-server 104.154.44.58:9092
+
+ 
