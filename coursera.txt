@@ -1,0 +1,24 @@
+git clone https://github.com/ibm-developer-skills-network/ooxwv-docker_hadoop.git
+
+cd ooxwv-docker_hadoop
+
+docker-compose up -d
+
+docker exec -it namenode /bin/bash
+
+http://localhost:9870/ -- GUI of HDFS
+
+8632dac110873e2ed3751d6948a99625 - IBM Activation code
+
+IBM Watson studio
+
+Spark is written in Scala, which compiles to Java bytecode, but you can write python code to communicate to the java virtual machine through a library called py4j. Python has the richest API, but it can be somewhat limiting if you need to use a method that is not available, or if you need to write a specialized piece of code. The latency associated with communicating back and forth to the JVM can sometimes cause the code to run slower. An exception to this is the SparkSQL library, which has an execution planning engine that precompiles the queries. Even with this optimization, there are cases where the code may run slower than the native scala version. The general recommendation for PySpark code is to use the "out of the box" methods available as much as possible and avoid overly frequent (iterative) calls to Spark methods. If you need to write high-performance or specialized code, try doing it in scala. But hey, we know Python rules, and the plotting libraries are way better. So, it's up to you!
+
+lambda func with list comprehension
+
+lambda func with if else 
+
+cat /etc/os-release to find the linux distribution
+
+curl -O https://archive.apache.org/dist/spark/spark-3.2.4/spark-3.2.4-bin-hadoop3.2.tgz
+
