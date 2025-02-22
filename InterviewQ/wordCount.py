@@ -13,7 +13,7 @@ spark = SparkSession \
     .appName("Python Spark DataFrames basic example") \
     .getOrCreate()
 
-text = spark.sparkContext.textFile('hdfs://127.0.0.1:9000/data/varshini.txt')
+text = spark.sparkContext.textFile('C:/Users/varsh/Sample_Data/varshini.txt')
 text_fm = text.flatMap(lambda a:a.split(' '))
 text_map = text.map(lambda a:(a,1)).reduceByKey(lambda a,b:a+1)
-text_map.saveAsTextFile('hdfs://127.0.0.1:9000/data/word_count_result')
+text_map.saveAsTextFile('C:/Users/varsh/Sample_Data/word_count_result')
