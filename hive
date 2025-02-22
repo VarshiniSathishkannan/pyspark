@@ -1,6 +1,6 @@
 beeline -u jdbc:hive2://
 
-create database emp;  -- stores in default locatio - /user/hive/warehouse
+create database emp;  -- stores in default location - /user/hive/warehouse
 
 create database users location '/user/hive/data'; 
 
