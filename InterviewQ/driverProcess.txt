@@ -1,0 +1,11 @@
+YARN cluster mode automatically assigns heap memory for driver.
+
+heap has pointers to dataframes 
+
+broadcast join - table is kept in driver memory before broadcasting it.
+
+Driver JVM process:
+1. start the JVM process
+2. distributes the code and tasks
+3. connection to worker nodes - resource negotiation
+4. gets back the results.
