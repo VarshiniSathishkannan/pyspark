@@ -8,3 +8,4 @@ val df = spark.sql("select * from db.table where id not in ('a','b)")
 val col = spark.table("db.table").columns
 
 df.select(col.head,col.tail:_*).coalesce(1).write.option("compression","none").option("sep","^").option("emptyValue","").mode("overwrite").csv("gs://")
+

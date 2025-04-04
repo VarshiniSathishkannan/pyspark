@@ -1,0 +1,27 @@
+Druid is commonly used as the database backend for GUI's of analytical applications or for high concurrent API that need fast aggregations. 
+
+It works best with event oriented (Time Series data)
+
+High concurrent data - QPS - Queries per Second. Lots of users
+
+Druid provides low latency (real time) data ingestion, flexible data exploration and fast data aggregation. Druid provides sub second response to SQL queries (now including JOINS) at high concurrency, on event driven data. It can instantaneously ingest streaming data and provide sub second queries to power interactive UIs
+
+Column oriented distributed database
+
+subsecond query times
+
+separate process for ingestion, query and orchestration. all are decoupled. this allows scaling based on requirement and provides flexibility
+
+query node - Gets the query from the application and returns data to the application
+
+data node - storage and compute
+
+master node - orchestrations
+
+Elastic Search, Splunk:
+Read intensive, document based, indexing for searching mainly for log files
+
+Cassandra:
+write intensive
+
+Highly scalable, NoSQL DB for OLTP, to store large dataset 1 TB and read queries are known. Low latency, high read and write throughput

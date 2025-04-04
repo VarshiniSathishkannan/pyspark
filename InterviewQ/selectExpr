@@ -1,0 +1,50 @@
+In Spark, both select and selectExpr are used to select columns from a DataFrame, but they differ in terms of how you can express the transformations and the flexibility they offer.
+
+1. select:
+Purpose: Selects columns or applies basic transformations to columns.
+
+Usage: You pass column names or Column expressions directly as arguments.
+
+Syntax: It is primarily used when you want to select columns or perform simple operations such as aliasing columns.
+
+Example:
+
+df.select("column1", "column2")
+
+Or, if you want to apply a function to a column:
+
+df.select(col("column1"), col("column2") * 2)
+
+
+Key points:
+
+The arguments passed to select are either column names (as strings) or Column expressions.
+
+You cannot use SQL expressions directly; you need to use the Spark API (col, lit, etc.) for column transformations.
+
+If you need to do something like renaming columns, you can use alias:
+
+
+df.select(col("column1").alias("newColumn"))
+
+2. selectExpr:
+
+Purpose: Selects columns or applies transformations using SQL expressions.
+
+Usage: You can use string expressions that represent SQL-like queries. It gives you more flexibility by allowing you to use SQL syntax directly.
+
+Syntax: You provide SQL expressions as strings.
+
+Example:
+
+df.selectExpr("column1", "column2 * 2 as doubled_column")
+
+Or using SQL-like expressions:
+
+df.selectExpr("case when column1 > 10 then 'High' else 'Low' end as column_label")
+
+Key points:
+
+You pass SQL-style expressions as strings to selectExpr. This can include functions, arithmetic operations, CASE statements, IF statements, and more complex SQL expressions.
+
+It is useful when you want to perform operations in the style of SQL queries, or you need more complex transformations that would otherwise require multiple API functions.

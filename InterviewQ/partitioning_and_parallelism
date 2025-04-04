@@ -1,0 +1,28 @@
+Data partitioning - too few partitions limits job parallelism and cluster resource utilization. Too many partitions slows down the job due to additional partition processing and shuffling
+
+spark.sql.files.maxPartitionBytes: 
+Maximum size of partitions when reading data from cloud storage. default is 128 MB. which is sufficiently large for most applications that process less than 100 TB
+
+spark.sql.shuffle.partitions:
+The number of partitions after performing a shuffle. The default is 200, which is appropriate for clusters with less that 100 vCPUs total. Recommendation - Set this to 3X the number of vCPUs in your cluster. 
+
+spark.default.parallelism:
+The number of partitions returned after performing RDD tranformations that require shuffles, such as join, reduceByKey and parallelize. The default is the total number of vCPU's in the cluster. When using RDD's in spark jobs you can set this number to 3X your vCPU's
+
+If you’re working with RDDs and use an operation like reduceByKey, it will use spark.default.parallelism to determine how many partitions to create.
+If you’re working with DataFrame or Dataset and perform a groupBy, the number of partitions after the shuffle will be controlled by spark.sql.shuffle.partitions.
+
+There is a performance loss when spark reads a large number of small files. Store data in larger file sizes, for example the file sizes in the range of 256MB to 512 MB. Similarley limit the number of output files.
+
+Spark allows users to manually trigger a shuffle to rebalance their data with the repartition function. shuffles are expensive, so reshuffling data should be used cautiously.
+
+When writing column paritioned data to cloud storage, repartitioning on a specific column avoids writing many small files to achieve faster write times.
+
+hash partitioning vs range partitioning
+
+hash - Using some hash function, no of partitions is provided by us
+
+range - Depending on range
+
+
+

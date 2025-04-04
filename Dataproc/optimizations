@@ -1,0 +1,4 @@
+Dataproc Enhanced Flexibility mode
+
+When using dynamicAllocation, tasks may fail due to FetchFailed Exceptions when workers are preempted or removed before they finish serving shuffle data to reducers. So by using dataproc EFM - it does not store intermediate shuffle data on secondary workers, so that secondary workers can be safely preempted or scaled down
+

@@ -1,0 +1,64 @@
+Use spark SQL
+
+Use SPARK 3
+
+Use Dynamic Allocation
+
+persistent disks throughput scales with disk size, which can affect the spark job performance since jobs write metadata and shuffle data to disk. whe using standard persistent disks, the data size should be atleast 1 TB per worker
+
+when scaling persistent disk size for optimal performance, disk size can be set significantly larger than the amount of data to be allocated to each worker in order to increase the throughput cap of the workers
+
+To monitor worker disk throughput in the GCP, 
+
+Click the cluster name in the DATAPROC, check on the VM INSTANCES, click on any worker name, click the monitoring tab, then scroll down to DISK THROUGHPUT to view
+
+Node going unhealthy - often related to insufficient disk space for shuffle data. by default, when a primary worker's local disk useage exceeds 90% of capacity, the node will be marked as unhealthy in the YARN node UI
+
+the user cache is stores in the dir specified by the yarn.nodemanager.local-dirs property in the yarn-site.xmel file. this file is located at /etc/hadoop/conf/yarn-site.xml. you can check the free space in the /hadoop/yarn/nm-local-dir path and free up space by deleting the /hadoop/yarn/nm-local-dir/usercache folder
+
+Use autoscaling:
+
+on clusters that store data in external services, such as cloud storage or BQ
+on clusters that process many jobs
+to scale up single job clusters
+with enhanced flexibilty mode for spark batch jobs
+
+YARN pending resource metric (Pending memory or pending cores) value determines whether to scale up or down. A value greater than 0 indicates that YARN jobs are waiting for resources and that scaling up may be required.0 value indicates YARN has sufficient resources so that sccaling down or other changes may not be required
+
+Pending memory is the sum of YARN memory requests for pending containers. pending containers are waiting for space to run in YARN. Pending memory is non-zero only if available memory is 0 or too small to allocate to the next container. If there are pending containers, autoscaling may add workers to the cluster
+
+Note that intermediate shuffle data is generally note cleaned up until the end of the job. when using primary worker shuffle with spark, this can take up to 30 minutes after the jobs completion.
+
+The maximum no of attempts permitted for app masters, tasks and stages can be configured by setting the following properties
+
+yarn.resourcemanager.am.max-attempts
+mapreduce.map.maxattempts
+mapreduce.reduce.maxattempts
+spark.task.maxFailures
+spark.stage.maxXonsecutiveAttempts
+
+2 Nodes - e2 standard 8 
+
+config:
+32 GB, 8 vcores. 
+
+total:
+64GB, 16 vcores
+
+primary disk:
+500GB
+
+yarn <memory: 44.47GB, vCores:16>
+
+yarn.nodemanager.resource.memory-mb = 22 GB
+
+Running executors with too much memory often results in excessive GC delays
+
+running tiny executors (with single core and enough memory to run a single task) throws away the benefits that come from running multiple tasks in a single JVM
+
+Catalyst and tungsten - query and memory optimization
+
+rule based optimisation
+
+cost based optimisation
+

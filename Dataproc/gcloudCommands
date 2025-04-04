@@ -1,0 +1,5 @@
+gcloud auth list
+
+gcloud config set account `account`
+
+gcloud auth activate-service-account --key-file=/path/sample.json

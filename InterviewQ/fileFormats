@@ -1,0 +1,43 @@
+Spark SQL defaults to reading and writing data in Snappy compressed Parquet files. 
+
+parquet can be compressed using snappy or gZip
+
+Below file formats are available in spark by default:
+1. Parquet
+2. CSV
+3. ORC
+4. JSON
+5. AVRO
+
+Parquet is in efficient columnar file format that enables Spark to only read the data it needs to execute an application. This is an important advantage when working with large datasets.
+
+Parquet has no built-in indexing but allows engines to create custom indexes when reading the data (e.g., column statistics).
+
+Parquet is generally faster for read operations in systems like Apache Spark, especially with large datasets.
+
+However, its write performance may not be as fast as ORC in some scenarios.
+
+Other columnar formats, such as Apache ORC, also perform well.
+
+ORC - Optimized Row Columnar, is a columnar storage format primarily developed by Apache Hive for use with Hadoop and Hive.
+
+It’s also optimized for performance, especially with large-scale data processing.
+
+ORC is more tightly integrated with Hive, but it is also supported by tools like Apache Spark and others.
+
+ORC comes with built-in lightweight indexes that store min/max values for each column. This can make filtering and aggregating data more efficient by skipping irrelevant parts of the data.
+
+ORC also stores column-level statistics (like min/max values) which further improves performance, especially for queries with filters.
+
+For non-columnar data, Apache Avro provides an efficient binary-row file format. Although typically slower than Parquet, Avro's performance is better than text based formats,such as CSV or JSON.
+
+row format - write easy, read difficult
+
+column format - write difficult, read easy, efficient compression
+
+AVRO - row based, mainly used in Kafka, serialized, write heavy, binary format, self describe with headers of schema
+
+ORC - Column based, mainly used in HIVE
+
+Parquet - Columnar based, mainly used in spark, write once read many analytics
+

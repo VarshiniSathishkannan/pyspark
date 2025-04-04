@@ -78,4 +78,3 @@ When to Use Off-Heap Memory
 6. Stream Processing: In streaming jobs with stateful operations, where intermediate results or state information might require more memory than the JVM heap can handle.
 7. Shuffle and Join Operations: When performing wide transformations, especially those that shuffle large amounts of data between partitions or nodes.
 
-
