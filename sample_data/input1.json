@@ -1,0 +1,18 @@
+[
+    {
+        "Name":"Azar",
+        "Education":{
+            "Qualification":"BCOM",
+            "Year":2013,
+            "Age":28
+        }
+    },
+    {
+        "Name":"Amol",
+        "Education":{
+            "Qualification":"BE",
+            "Year":2021,
+            "Age":24
+        }
+    }
+]

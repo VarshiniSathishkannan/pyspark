@@ -1,0 +1,16 @@
+[
+    {
+        "Name":"Benita",
+        "Education":{
+            "Qualification":"BSC",
+            "Year":2012
+            }
+    },
+    {
+        "Name":"Bavya",
+        "Education":{
+            "Qualification":"MSC",
+            "Year":2022
+        }
+    }
+]
