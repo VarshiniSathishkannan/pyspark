@@ -1,0 +1,12 @@
+# This is a sample CSV file
+# Generated for testing multi-line skip
+# Author: OpenAI
+# Date: 2025-04-10
+# Below is the actual data
+
+id,name,city
+1,Alice,New York
+2,Bob,Los Angeles
+3,Charlie,Chicago
+4,Diana,Houston
+5,Evan,Phoenix

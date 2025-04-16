@@ -41,3 +41,19 @@ ORC - Column based, mainly used in HIVE
 
 Parquet - Columnar based, mainly used in spark, write once read many analytics
 
+Why is Parquet better for large file processing?
+
+1. Faster Reads (when using filters)
+If you only need the Age column, Parquet can skip reading the other columns.
+
+
+2. Better Compression
+Since similar data is stored together (like all ages), it's easier to compress, making files smaller.
+
+
+3. Efficient with Big Data Tools
+Tools like Spark, Hive, AWS Athena, and AWS Glue are optimized for Parquet.
+
+
+4. Supports Schema & Data Types
+It remembers data types (like int, string), so it’s easier for systems to process.

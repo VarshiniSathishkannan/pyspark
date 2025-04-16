@@ -1,0 +1,9 @@
+date,status,request
+2025-04-10,success,'{"response": {"message_id": "msg_001", "latitude": 37.7749, "longitude": -122.4194}}'
+2025-04-10,error,'{"response": {"message_id": "msg_002", "latitude": 40.7128, "longitude": -74.0060}}'
+2025-04-09,success,'{"response": {"message_id": "msg_003", "latitude": 34.0522, "longitude": -118.2437}}'
+2025-04-09,error,'{"response": {"message_id": "msg_004", "latitude": 51.5074, "longitude": -0.1278}}'
+2025-04-08,success,'{"response": {"message_id": "msg_005", "latitude": 48.8566, "longitude": 2.3522}}'
+2025-04-08,success,'{"response": {"message_id": "msg_006", "latitude": 52.5200, "longitude": 13.4050}}'
+2025-04-07,error,'{"response": {"message_id": "msg_007", "latitude": 35.6895, "longitude": 139.6917}}'
+2025-04-07,success,'{"response": {"message_id": "msg_008", "latitude": 34.0522, "longitude": -118.2437}}'
