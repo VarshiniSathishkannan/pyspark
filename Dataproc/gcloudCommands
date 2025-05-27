@@ -3,3 +3,87 @@ gcloud auth list
 gcloud config set account `account`
 
 gcloud auth activate-service-account --key-file=/path/sample.json
+
+gcloud dataproc clusters update <cluster name> --region=us-central1 --project=<project name> --max-age=28800 --max-idle=28800 --num-workers=8 --num-secondary-workers=2
+
+gcloud dataproc jobs submit spark --cluster=my-cluster \
+  --region=us-central1 --class=org.apache.spark.examples.SparkPi \
+  --jars=file:///usr/lib/spark/examples/jars/spark-examples.jar \
+  -- 100
+
+# Then wait for it to finish:
+
+gcloud dataproc jobs wait job-20240426-0001 --region=us-central1
+
+<!-- Blocks your terminal until the job is done (successful or failed).
+
+Streams the job output/logs as it runs, like Spark logs.
+
+Lets you monitor job progress in real time without manually checking. -->
+
+# Set variables
+CLUSTER=my-cluster
+REGION=us-central1
+JAR=file:///usr/lib/spark/examples/jars/spark-examples.jar
+CLASS=org.apache.spark.examples.SparkPi
+ARGS=100
+
+# Submit the job and capture the job ID
+JOB_ID=$(gcloud dataproc jobs submit spark \
+  --cluster=$CLUSTER \
+  --region=$REGION \
+  --class=$CLASS \
+  --jars=$JAR \
+  -- $ARGS \
+  --format="value(reference.jobId)")
+
+echo "Submitted job with ID: $JOB_ID"
+
+# Wait for the job to finish
+gcloud dataproc jobs wait $JOB_ID --region=$REGION
+
+The --format flag in gcloud is used to control the output format of the command—very handy when you want to parse results or use them in scripts (like getting a job ID, IP address, etc.).
+
+# Common Formats:
+
+Format	    Description
+table	    Outputs data in a readable table format (default)
+json	    Outputs full JSON
+yaml	    Outputs in YAML format
+value(...)	Extracts and outputs a specific field value
+csv(...)	Outputs specific fields as comma-separated values
+
+# Example 
+
+gcloud dataproc jobs submit spark ... --format="value(reference.jobId)"
+This tells gcloud to:
+
+Look into the reference object (in the JSON response)
+
+# Extract just the jobId
+
+Output only that (no labels, no quotes, just raw)
+
+gcloud compute instances list --format=json
+This gives the full JSON output, which is great for parsing with tools like jq.
+
+# By default
+when you run a gcloud dataproc jobs submit command without --format, the response is shown in a human-readable table format, which includes key information about the job submission.
+
+If you submit a Spark job like this:
+
+gcloud dataproc jobs submit spark \
+  --cluster=my-cluster \
+  --region=us-central1 \
+  --class=org.apache.spark.examples.SparkPi \
+  --jars=file:///usr/lib/spark/examples/jars/spark-examples.jar \
+  -- 100
+
+Job [job-20250426-0001] submitted.
+Waiting for job output...
+
+Job ID                  job-20250426-0001
+Type                    spark
+State                   PENDING
+...
+Driver Output Resource  gs://your-cluster-temp-bucket/google-cloud-dataproc-metainfo/...

@@ -1,0 +1,90 @@
+Lambda Architecture:
+
+Lambda Architecture is a data processing architecture designed to handle massive quantities of data by combining batch and real-time (streaming) processing.
+
+Components of Lambda Architecture
+It has three main layers:
+
+1. Batch Layer
+Stores the master dataset (immutable, append-only data)
+
+Computes batch views using large-scale processing (e.g., Spark, Hadoop)
+
+Handles historical and complete data
+
+🔁 Periodically recomputes the full data view to ensure accuracy
+
+2. Speed Layer (a.k.a. Streaming Layer)
+Processes real-time data as it arrives
+
+Provides low-latency updates
+
+Uses systems like Spark Streaming, Flink, Kafka Streams
+
+⚠ Only handles recent data for fast updates
+
+3. Serving Layer
+Merges outputs from batch and speed layers
+
+Exposes data through queries, dashboards, APIs
+
+🔎 Final result = Batch View + Real-Time View
+
+🔄 How It Works Together
+
+           ┌───────────────┐
+           │   Raw Data    │
+           └──────┬────────┘
+                  │
+       ┌──────────┴───────────┐
+       │                      │
+┌──────▼──────┐      ┌────────▼───────┐
+│  Batch Layer│      │  Speed Layer   │
+│ (e.g., Spark)│      │ (e.g., Kafka, Flink)│
+└──────┬──────┘      └────────┬───────┘
+       │                      │
+       └────────┬─────────────┘
+                ▼
+        ┌──────────────┐
+        │ Serving Layer│
+        │ (e.g., API)  │
+        └──────────────┘
+
+✅ Benefits of Lambda Architecture
+
+Feature	Why It Matters
+Scalability	Works with large-scale, distributed systems
+Fault-tolerant	Batch layer acts as source of truth
+Low-latency	Real-time layer enables immediate insights
+Accuracy	Batch layer corrects real-time approximations
+
+⚠️ Challenges
+Complexity: You need to maintain two code paths (batch & stream)
+
+Code duplication: Same logic needs to be implemented in both layers
+
+Operational overhead: Managing two systems and ensuring consistency
+
+🆚 Modern Alternative: Unified Architectures
+Many systems are moving toward Kappa Architecture or Delta Architecture:
+
+🔁 Kappa Architecture
+Only uses stream processing
+
+Uses tools like Apache Flink or Kafka Streams
+
+Replay logs for historical computation
+
+🧪 Delta Architecture
+Uses Delta Lake (or Apache Hudi/Iceberg)
+
+Combines stream + batch via Structured Streaming
+
+Simplifies pipeline with single code path
+
+🧠 Summary
+Component	    Role	                                Tools
+Batch Layer	    Stores full data, computes batch views	Spark, Hadoop
+Speed Layer	    Processes real-time events	            Spark Streaming, Flink
+Serving Layer	Merges and serves results	            Cassandra, Elasticsearch
+

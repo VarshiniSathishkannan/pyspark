@@ -1,4 +1,4 @@
-Event data
+# Event data
 
 purchasing a product - Generates many events
     click events
@@ -7,15 +7,20 @@ purchasing a product - Generates many events
 
 100's of events, 100's of attributes
 
-trend analysis
+# Trend analysis
 
-Granularity - Granularity in data refers to the level of detail or precision of the data. For example, data that has a high level of granularity would have a large number of individual piecees of information, such as individual records of measurement
+# Granularity 
+    Granularity in data refers to the level of detail or precision of the data. For example, data that has a high level of granularity would have a large number of individual piecees of information, such as individual records of measurement
 
-Dimensions are attributes of your data
+# Dimensions
+    Dimensions are attributes of your data
 
-Metrics are quantitative measurements
+# Metrics
+    Metrics are quantitative measurements
 
 A column with high cardinality has a large number of distinct values while a column with low cardinality has a small number of distinct values
+
+# OLAP
 
 OLAP - Online Analytical Processing
 
@@ -29,14 +34,16 @@ dice - filtering based on conditions to show only specific dimensions - 3D
 
 pivot - Interchanging rows and columns
 
+# ETL and ELT
+
 schema on write - ETL
 
 schema on read - ELT - Modern approach
 
-full load:
+# full load:
 less volume, no incremental identifiers, example - dimension table, static table, history or one time load, frequency of load is less
 
-incremental load:
+# incremental load:
 delta load, captures only changes
 inserts, updates and deletes
 huge volume, incremental identifiers example - fact table or transaction table, frequency of load is more
@@ -49,3 +56,8 @@ push vs pull loading
 
 series vs parallel loading
 
+Flattening of data
+
+Flattening data means transforming nested or hierarchical data structures into a flat, tabular format — where each field becomes a separate column.
+
+In simple terms: turning complex JSON/XML into rows and columns.

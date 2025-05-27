@@ -1,0 +1,516 @@
+low level API - RDD
+structures API - Dataframe, dataset and SQL - built on top of RDD
+libraries and ecosystem - structured streaming and machine learning 
+
+100 times faster than Mapreduce due to RAM processing 
+
+## dataframe execution plan:
+
+logical plan and physical plan
+
+logical plan :
+
+unresolved logical plan  - compares with catalog for table validations
+
+resolved logical plan - goes to catalyst optimizer
+
+optimised logical plan (DAG)
+
+physical plan:
+
+creates a no of physical plans based on cluster and configurations
+
+run through the cost model and chooses the best physical plan 
+
+this is sent to the cluster for execution 
+
+## copy a spark session
+
+in interactive shell, already sparkSession is available to us as spark
+
+we can use a different name 
+
+spark_2 = spark.getActiveSession()
+
+Now spark and spark_2 points to the same spark session 
+
+## schema string
+
+schema_str = "name string, age int"
+
+instead of using the spark inbuilt datatypes, we can also use above format, spark will implicitly convert to the structtypes
+
+from pyspark.sql.types import _parse_datatype_string
+
+schema_spark = _parse_datatype_string(schema_str)
+
+above returns the structype schema 
+
+df.schema
+
+df.printSchema()
+
+## column name with spaces
+
+It is allowes but not recommended. Downstream systems might throw some error
+
+## drop a column 
+
+emp_drop = emp.drop("columnName","column2")
+
+## add multiple columns
+
+withColumn is the way to add column but to add more columns 
+
+add_cols = {
+    "tax" : col("salary")*0.2,
+    "number1" : lit(1),
+    "number2" : lit(2)
+}
+
+emp_final = emp.withColumn(add_cols) 
+
+Here instead of adding multiple with columns, we can pass them as a dictionary
+
+## working with string 
+
+from pyspark.sql.functions import when, col, expr
+
+emp = emp.withColumn('gender_name',when(col('gender')=='M','Male').when(col('gender')=='F','Female').otherwise(None))
+
+emp = emp.withColumn('gender_name',expr("case when gender == 'M' then 'Male' when gender == 'F' then 'Female' else null end"))
+
+## Learn more on string, date and null functions
+
+## join on multiple conditions
+
+a = b.join(c,how='inner',on=(b.id == c.id) & (b.id > 10 | b.id < 5))
+
+## read is not a action but a job generates
+
+1 task gets executed, to read 1 row
+to identify the metadata
+it did proactively 
+we can also get header (creates one job) and schema (creates one job) by defining the options
+
+But for schema, spark reads more records not just one
+
+All this occurs without triggering any action 
+
+if we are defining the schema then spark does not trigger any job to identify the metadata since we have already provided
+
+## Go through all the options for reading a csv and other formats as well
+
+## we cannot use mode option without defining the schema 
+
+permissive - default - null for corrupt values, spark provides extra column named _corrupt_record as string. we need to define it in the schema. we also have an option to change the name of the corrupt column 
+
+columnNameOfCorruptRecord - option 
+
+dropmalformed - drops the corrupt records
+
+failfast - job fails 
+
+## we can also give multiple options by making use of a dict 
+
+options_dict = {
+    "header": "true",
+    "inferSchema": "true",
+    "delimiter": ","
+}
+
+df = spark.read.options(**options_dict).csv("path/to/file.csv")
+
+The ** unpacks the dictionary so each key-value pair becomes a keyword argument.
+
+Types of Unpacking in Python
+1. Tuple/List Unpacking
+
+a, b = (1, 2)
+print(a)  # 1
+print(b)  # 2
+Works with lists too:
+
+
+a, b = [3, 4]
+2. Extended Unpacking (with *)
+
+a, *b = [1, 2, 3, 4]
+print(a)  # 1
+print(b)  # [2, 3, 4]
+You can use * in the middle or end:
+
+
+a, *b, c = [1, 2, 3, 4, 5]
+a = 1, b = [2, 3, 4], c = 5
+3. Dictionary Unpacking (**)
+You can unpack dictionary key-value pairs into function arguments:
+
+
+def greet(name, age):
+    print(f"Hello {name}, age {age}")
+
+person = {"name": "Alice", "age": 30}
+greet(**person)
+You can also merge dictionaries:
+
+
+d1 = {"a": 1}
+d2 = {"b": 2}
+merged = {**d1, **d2}  # {'a': 1, 'b': 2}
+4. Function Argument Unpacking
+
+def add(x, y):
+    return x + y
+
+args = (2, 3)
+print(add(*args))  # 5
+Same with dict:
+
+
+kwargs = {"x": 2, "y": 3}
+print(add(**kwargs))  # 5
+5. Unpacking in Loops
+
+pairs = [(1, 'a'), (2, 'b')]
+for number, letter in pairs:
+    print(number, letter)
+🧠 Summary
+Symbol	Use Case	Example
+*	Unpack iterables	*args or a, *b = lst
+**	Unpack dicts	**kwargs or func(**d)
+
+## python decorators ?
+
+A decorator is a function that modifies the behavior of another function without changing its actual code.
+
+You "wrap" a function with another function.
+
+def my_decorator(func):
+    def wrapper():
+        print("Before the function runs")
+        func()
+        print("After the function runs")
+    return wrapper
+
+@my_decorator
+def say_hello():
+    print("Hello!")
+
+## Readin JSON data
+
+multiline
+
+from_json - JSON string → StructType
+
+from_json("json_str", schema) returns a parsed json 
+
+to_json  - StructType → JSON string
+
+to_json(struct("name", "age"))
+
+explode - this adds additional rows
+struct.* to expand - this adds additional columns
+
+## spark.write with partitionBy
+
+partitionBy(col)
+
+that paritions name will appear as a folder name and parition col wont appear on the final data while storing
+
+## write modes
+
+append
+overwrite 
+ignore - if files exists wont do anything
+error - default
+
+AnalysisException: path already exists
+
+# spark.range(10) to create a df
+
+# master = standalone mode, yarn, mesos 
+
+# client and cluster mode
+
+# spark submit command
+
+# python udf - additional overhead on data serialisation and deserialisation 
+
+better to do in scala or java
+
+# register UDF to use with spark SQL and expr
+
+spark.udf.register("bonus_udf",bonus,"double")
+
+# write.format('noop') - this is for performance benchmarking, just to trigger the spark but does not write anything
+
+## cache 
+
+for a df to be cached, an action is required, and it is always preferred to use count or write action with the df to be properly cached the results
+
+df.cache().count()
+
+default storage is memory and disk. this can be viewed in storage tab in spark ui
+
+df.unpersist() -  remove cache
+
+storage level:
+
+cache by default uses the memory and disk and data is deserialised but if we need to change the storage level and serialisation and replication factor then we need to use persist
+
+df.persist(pyspark.storageLevel.MEMORY_ONLY)
+
+spark.catalog.clearCache() -- to clear all cache
+
+# broadcast variable and accumulators
+
+# how joins work in spark
+
+sales city_id
+city city_id
+
+spark uses hashing on the join or group by column to identify which rows should go to which partition 
+
+Use reduceByKey or aggregateByKey in RDDs — they avoid full shuffles by combining data locally before shuffling.
+
+shuffle hash join: one small and one large table
+
+shuffle
+smaller hashed
+match with big data
+join 
+
+sort merge join: 2 big tables
+
+shuffle
+sort 
+merge
+
+broadcast join: 1 small enough to broadcast (10 MB default can be increased to 8GB)
+
+small broadcasted to all executors
+join 
+
+from pyspark.sql.functions import broadcast
+
+df = a.join(broadcast(b),on=a.id==b.id,how='left outer')
+
+## buckets to optimize joins
+
+write the data in buckets
+
+bucketing should be done on the joining column. both the tables needs to be bucketed
+
+sales.write.format('csv').mode('overwrite').bucketBy(4,'city_id').option('header',True).option('path','/data/input/datasets/sales_bucket.csv').saveAsTable('sales_bucket')
+
+this uses sort merge join without shuffle 
+
+## dynamic allocation
+
+spark.dynamicAllocation.enabled = True
+spark.dynamicAllocation.minExecutors = 0
+spark.dynamicAllocation.maxExecutors = 5
+spark.dynamicAllocation.initialExecutors = 1
+spark.dynamicAllocation.shuffleTracking.enabled = True
+spark.dynamicAllocation.executorIdleTimeout = 60s
+spark.dynamicAllocation.cachedExecutorIdleTimeout = 60s
+
+Due to garbage collection, executors may take some more time to get killed
+
+## data skewness
+
+Data spill - on memory and disk
+
+spillage and skewness comes hand in hand
+
+deserialised in memory and serialised in disk 
+
+repartitioning may help
+
+but if the joining column itself is the repartitioning column then it wont help
+
+## AQE enabled in spark 3 
+
+
+
+spark.conf.set('spark.sql.adaptive.enabled',True)
+
+skewed join optimisation - join smaller partitions and split bigger partitions
+
+spark.sql.adaptive.coalescePartitions.enabled True
+
+remove unnecessary shuffle partitions - if set fault default will be 200
+
+spark.sql.autoBroadcastJoinThreshold -1 default is 10MB
+
+Additional config:
+
+spark.sql.adaptive.skewJoin.skewedPartitionThresholdinBytes 10MB -- default value is 250MB
+
+partition is considered skewed if its size in bytes is larger than threshold
+
+spark.sql.adaptive.advisoryPartitionsSizeinBytes 8MB default is 64MB
+
+the size in bytes of the shuffle partition during adaptive optimization. this can control the size of the shuffle partition post shuffle
+
+
+## cosmos DB
+
+It is like a hub
+
+supports postgres, noSQL, key-value, graph
+
+it supports ACID
+
+highly distributed and concurrent
+
+replication - local(fault tolerant), geo(highly availabble)
+
+partition - physical (where data fits in cloud) and logical (partition key)
+
+Database -> containers(tables) -> items (can be anything)(id(unique),partition key(physical storage))
+
+Azure Cosmos DB
+
+spark.jars.packages 
+
+config = {
+    "spark.cosmos.accountEndpoint":"endpoint",
+    "spark.cosmos.accountKey":"key",
+    "spark.cosmos.database":"DB",
+    "spark.cosmos.container":"table
+}
+
+df = {
+    spark.read.format("cosmos.oltp")
+    .options(**config)
+    .option("spark.cosmos.read.inferSchma.enabled","true")
+    .load()
+}
+
+similarly write to cosmos DB
+
+there are some write strategies which need to be added as option 
+
+## to store secrets we can make use of spark-defaults.conf
+
+## spark.sql
+
+spark.conf.get('spark.sql.catalogImplementation')
+
+hive is persistent
+
+spark is not 
+
+spark-warehouse gets created if we are trying to saveAsTable
+
+df.createOrReplaceTempView()
+
+for creating a view on top of dataframe to be able to use spark SQL
+
+views and tables created in spark catalog is active only for that session
+
+spark.read.table('table_name')
+
+or we can directly query 
+
+spark.sql('select * from a')
+
+spark.sql('show tables in default')
+
+default is the database name
+
+hive metastore DB gets created in our directory but we can use a separate metastore DB as well
+
+describe extended tablename
+
+## delta table
+
+data lake 
+data warehouse 
+together forming lakehouse
+
+DML on hive parquet - Delta Lake is tightly coupled with Parquet
+time travel 
+schema evolution
+streaming and batch support
+
+df.write.format('delta').option('path','').saveAsTable('')
+
+Feature	Hudi	Delta Lake	Apache Iceberg
+Upserts & Deletes	✅ Yes	✅ Yes	✅ Yes
+Merge-on-Read Option	✅ Yes	❌ No	❌ No
+Incremental Reads	✅ Yes	✅ Yes	✅ (partial)
+Streaming Writes	✅ Yes	✅ Yes	✅ Yes
+Format	Parquet/ORC	Parquet	Parquet/Avro
+
+## partitioning column should be part of the query for reducing data scanning
+
+## Avoid partitioning on high cardinality columns - columns which is having more unique values
+
+## optimisation in delta lake 
+
+data skipping using Z ordering
+
+we can do z ordering for a non partitioned table if we are going to search based on orderID. Delta will sort the data based on order id and it will be easy for getting the data, we can also do z ordering for multiple columns as well
+
+Z-Ordering is a multi-dimensional clustering technique used in Delta Lake to:
+
+Co-locate related data blocks (e.g., based on multiple columns).
+
+Improve query performance by minimizing I/O for range scans.
+
+Hudi has clustering to reorganize data files based on sort columns, which can improve performance similarly to Z-Ordering.
+
+## Clustering in Hive (a.k.a. Bucketing)
+In Hive, clustering refers to bucketing — a way of organizing data into fixed buckets based on a hash of a column.
+
+## deletion vector in delta table
+
+when we delete a row, it wont get deleted immediately, it will be flagged and next time when we read the data it wont include that flagged record
+
+## liquid clustering in delta table
+
+clusterBy
+
+data will be rearranged during the initial phase itself since z ordering will do a complete change at later point
+
+## OOM errors in spark
+
+300 MB is reserved for a JVM always to we cannot request less than 1.5 times of reserved memory that is 450MB
+
+for a 1GB executor memory, 10% goes for Garbage collection and 300 MB reserved 
+
+disk storage - byte strings - serialized
+
+memory - deserialised - java objects
+
+size increases on deserialisation 
+
+storage spill to disk 
+
+OOM occurs if persis data is on memory only and memory is not sufficient 
+
+execution spill to disk
+
+if the record itself is greater than the size of the memory since spark cannot split a record it throws oom errors
+
+wide transformations or shuffles
+
+all the shuffle data to memory - causes oom 
+
+broadcast variable > memory causes oom
+
+explode, cross join operation causes oom 
+
+ofheap memory is for cache better option than disk 
+
+storage memory is eased in this case. ofheap memory is not managed by JVM
+
+we can see storage memory in spark ui executors page
+
+## garbage collection taking more time 
+
+OOM error due to longer GC cycles
+

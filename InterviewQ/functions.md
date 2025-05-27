@@ -1,7 +1,6 @@
 https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/functions.html
 
-
-1. col:
+# col:
 Purpose: col is a function used to refer to a column in a DataFrame. It helps in accessing columns by name and performing operations on them.
 
 Use Case: You use col when you want to refer to a column within a DataFrame and apply transformations like arithmetic, filtering, or aggregation.
@@ -27,7 +26,7 @@ col("column_name") returns a Column object.
 
 You can apply operations on the column, such as col("id") + 1 or use it in filtering like df.filter(col("id") > 1).
 
-2. lit:
+# lit:
 Purpose: lit is used to create a literal (constant) column in a DataFrame. This is useful when you want to add a constant value as a column or in operations.
 
 Use Case: You use lit when you need to use a constant value within a DataFrame transformation. For example, adding a constant column to a DataFrame or using it in expressions.
@@ -53,7 +52,7 @@ lit(value) creates a column with a constant value for every row.
 
 This is particularly useful for creating new columns or comparisons (e.g., col("id") > lit(10)).
 
-3. max:
+# max:
 Purpose: max is an aggregate function used to find the maximum value in a column.
 
 Use Case: You use max when you want to calculate the maximum value from a specific column in a DataFrame.
@@ -78,7 +77,7 @@ max("column_name") returns the maximum value from the specified column.
 
 It’s an aggregate function, so it’s often used in conjunction with groupBy for grouped data or agg for global aggregations.
 
-4. when:
+# when:
 Purpose: when is used for conditional logic. It is similar to a CASE or IF statement in SQL. It allows you to define conditions and return different values based on those conditions.
 
 Use Case: You use when for creating new columns based on conditional logic, such as categorizing data or performing transformations based on a condition.

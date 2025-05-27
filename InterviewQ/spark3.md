@@ -1,15 +1,15 @@
 Dataproc 2.0 installs Spark 3
 
-Adv:
+# Adv:
 1. GPU support
 2. Ability to read binary files
 3. Performance improvements
 4. Dynamic partition pruning
 5. AQE - Adaptive Query Execution
 
-Dynamically coalescing shuffle partitions
-Dynamically switching join strategies
-Dynamically optimizing skew joins 
+# Dynamically coalescing shuffle partitions
+# Dynamically switching join strategies
+# Dynamically optimizing skew joins 
 
 1. Too mnay partitions with less data causing IO network overload or less partitions with more data causing long running tasks - AQE solves this by dynamically coalescing shuffle partitions
 

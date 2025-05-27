@@ -1,6 +1,6 @@
 In Spark, both select and selectExpr are used to select columns from a DataFrame, but they differ in terms of how you can express the transformations and the flexibility they offer.
 
-1. select:
+# select:
 Purpose: Selects columns or applies basic transformations to columns.
 
 Usage: You pass column names or Column expressions directly as arguments.
@@ -27,7 +27,7 @@ If you need to do something like renaming columns, you can use alias:
 
 df.select(col("column1").alias("newColumn"))
 
-2. selectExpr:
+# ectExpr:
 
 Purpose: Selects columns or applies transformations using SQL expressions.
 

@@ -1,10 +1,10 @@
-Use spark SQL
+# Use spark SQL
 
-Use SPARK 3
+# Use SPARK 3
 
-Use Dynamic Allocation
+# Use Dynamic Allocation
 
-persistent disks throughput scales with disk size, which can affect the spark job performance since jobs write metadata and shuffle data to disk. whe using standard persistent disks, the data size should be atleast 1 TB per worker
+persistent disks throughput scales with disk size, which can affect the spark job performance since jobs write metadata and shuffle data to disk. when using standard persistent disks, the data size should be atleast 1 TB per worker
 
 when scaling persistent disk size for optimal performance, disk size can be set significantly larger than the amount of data to be allocated to each worker in order to increase the throughput cap of the workers
 
@@ -16,7 +16,7 @@ Node going unhealthy - often related to insufficient disk space for shuffle data
 
 the user cache is stores in the dir specified by the yarn.nodemanager.local-dirs property in the yarn-site.xmel file. this file is located at /etc/hadoop/conf/yarn-site.xml. you can check the free space in the /hadoop/yarn/nm-local-dir path and free up space by deleting the /hadoop/yarn/nm-local-dir/usercache folder
 
-Use autoscaling:
+# Use autoscaling:
 
 on clusters that store data in external services, such as cloud storage or BQ
 on clusters that process many jobs

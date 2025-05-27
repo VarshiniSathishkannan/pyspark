@@ -6,7 +6,7 @@ gcloud dataproc jobs submit spark \
   --   (delimiter that signals end of gcloud options and beginning of positional job arguments)
   my-app-args
 
-Sample 1:
+# Sample 1:
 
 gcloud dataproc jobs submit spark \
 --cluster=cluster_name \
@@ -19,7 +19,7 @@ gcloud dataproc jobs submit spark \
 -- 
 load_type="incr" runmode="global" env="prod" start_date="20240412" end_date=${endts}
 
-Sample 2:
+# Sample 2:
 
 gcloud dataproc jobs submit spark \
 --cluster=cluster_name \
@@ -32,7 +32,7 @@ gcloud dataproc jobs submit spark \
 -- 
 prod gs://sample_bucket/config/file ${path}
 
-Sample 3: PySpark
+# Sample 3: PySpark
 
 gcloud dataproc jobs submit pyspark \
 --cluster=cluster_name \
@@ -44,7 +44,7 @@ gs://my-bucket/my-pyspark-job.py
 -- 
 prod gs://sample_bucket/config/file ${path}
 
-Propertites:
+# All Propertites:
 
 spark.submit.deployMode=cluster
 spark.master=yarn
@@ -96,6 +96,7 @@ spark.network.timeout=1000000
 spark.jars.packages=org.apache.hudi:hudi-spark3.3-bundle_2.12:0.13.0
 spark.scheduler.listenerbus.eventqueue.capacity=90000
 
+# spark.jars.packages
 
 (The parameter spark.jars.packages is used to specify Maven coordinates for external libraries (JAR files) that you want to automatically download and include in your Spark job execution. without having to manually upload JAR files to Google Cloud Storage or specify their locations.
 

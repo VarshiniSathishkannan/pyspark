@@ -4,7 +4,7 @@ Onheap ,offheap, overhead memory
 
 When application runs, it requests the YARN for executor memory + overhead + offheap. Ensure the total memory usage does not exceed the physical memory of each node.
 
-Onheap memory:
+# Onheap memory:
 
 Managed by JVM.
 spark.executor.memory = 10G
@@ -23,7 +23,7 @@ Remaining - 4GB
     Reserved memory 
         internal spark running process
 
-offheap memory:
+# offheap memory:
 
 spark.memory.offheap.enabled = False (default)
 spark.memory.offheap.size = 0 (default - 0GB) (In byetes) 
@@ -36,7 +36,7 @@ it allocates off-heap memory directly from the operating system’s memory space
 
 Off-heap memory is allocated directly from the system’s physical memory (RAM). Therefore, the total amount of off-heap memory Spark can use is ultimately constrained by the total available physical memory on the system.
 
-overhead memory:
+# overhead memory:
 
 spark.executor.memoryOverhead = max(384MB,10% of executor memory)(default)
 
@@ -62,13 +62,13 @@ Increase the spark.executor.memoryOverhead if you are dealing with large shuffle
 It's especially useful when running complex jobs or workloads that involve large amounts of network I/O or disk I/O.
 If you encounter OutOfMemoryError or slow performance, increasing the overhead memory can sometimes resolve the issue, especially in memory-intensive workloads.
 
-Why off-heap memory is used?
+# Why off-heap memory is used?
 
 suppose if on heap memory is fully used on a container, then Garbage collection starts, which will clean up the old process to make room. this will halt the process completley which impacts the performance.
 Offheap memory comes useful in those cases. since off heap memory is managed by OS, So GC cycles does not take place. But it is the developers responsibility to allocate and deallocate the resources 
 This is faster than disk with little network latency but if utilized properly it provides greater performance.
 
-When to Use Off-Heap Memory
+# When to Use Off-Heap Memory
 
 1. Large Datasets: When caching or processing large datasets that might exceed the JVM heap capacity, to avoid GC overhead.
 2. Tungsten Optimizations: For utilizing Spark's Tungsten memory management for efficient binary storage and processing.

@@ -1,0 +1,20 @@
+Fact table:
+
+Find at the centre of star or snowflake schema and its surrounded by dimension tables. It consists of facts about a particular business process
+
+A surrogate key is a system-generated, unique identifier (usually an integer) used as the primary key in a dimension table.
+
+It has no business meaning. It’s just there to:
+
+Provide uniqueness
+
+Enable tracking of historical versions
+
+Simplify joins between fact and dimension tables
+
+🔁 Tracks history	Each version of a record gets a new surrogate key (important for SCD Type 2 and 6)
+🔑 Avoids dependency on business keys	Business keys might change (e.g. usernames), or be messy (non-unique, long strings)
+⚙️ Faster joins & better performance	Integer joins are more efficient than string-based joins
+🚀 Decouples warehouse from source systems	Source system changes won’t break your keys or joins
+
+Degenerate

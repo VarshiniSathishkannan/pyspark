@@ -1,0 +1,32 @@
+Apache Hudi (Hadoop Upserts Deletes and Incrementals) is a data lake storage framework built on top of Apache Parquet files. It adds streaming ingestion, incremental processing, and ACID transactions to data lakes.
+
+Supports upserts (update + insert) and deletes on datasets stored in cloud storage or HDFS.
+
+Enables incremental queries and change data capture (CDC).
+
+Works well with Spark, Presto, Hive, and Flink.
+
+Optimized for large-scale data lakes and real-time analytics.
+
+How to read Hudi datasets in Spark?
+
+You need to use the Hudi Spark datasource, which comes as an additional library.
+
+spark-submit --packages org.apache.hudi:hudi-spark3-bundle_2.12:0.12.1 your_script.py
+
+spark = SparkSession.builder \
+    .appName("ReadHudi") \
+    .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
+    .config("spark.sql.extensions", "org.apache.spark.sql.hudi.HoodieSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.hudi.catalog.HoodieCatalog") \
+    .getOrCreate()
+
+hudi_df = spark.read.format("hudi").load("path/to/hudi/table")
+hudi_df.show()
+
+hudi_df.write.format("hudi") \
+    .option("hoodie.datasource.write.recordkey.field", "id") \
+    .option("hoodie.datasource.write.table.name", "hudi_table") \
+    .option("hoodie.datasource.write.precombine.field", "ts") \
+    .mode("append") \
+    .save("path/to/hudi/table")

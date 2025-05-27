@@ -1,0 +1,35 @@
+Apache Spark is a distributed data processing engine.
+
+ArgoCD is a GitOps continuous delivery tool for Kubernetes.
+
+“Spark on ArgoCD” means you are deploying and managing Spark jobs or clusters on Kubernetes, using ArgoCD to automate and manage the deployment.
+
+Why Use ArgoCD for Spark?
+1. ✅ GitOps for Spark
+All Spark job definitions (YAMLs, Helm charts, etc.) live in Git.
+
+Any changes (new jobs, updates) are automatically applied to the cluster via ArgoCD.
+
+Version control + rollback = safer data pipelines.
+
+2. ⛵ Spark on Kubernetes
+Spark supports running on Kubernetes natively (since Spark 2.3).
+
+You define Spark jobs using SparkApplication CRDs (from Spark Operator).
+
+ArgoCD watches those CRDs and deploys them when changes happen in Git.
+
+3. 🔄 CI/CD for Data Jobs
+Imagine your data engineer pushes a new PySpark job to Git.
+
+ArgoCD sees the change and applies it.
+
+Spark Operator creates the job on the Kubernetes cluster.
+
+🎯 Result: fully automated Spark job deployment pipeline.
+
+ArgoCD (Argo Continuous Delivery) is a declarative GitOps tool for Kubernetes. It automatically syncs Kubernetes resources from Git repositories to your cluster.
+
+In simple terms:
+
+💡 “Whatever you define in Git, ArgoCD ensures it’s running in your Kubernetes cluster.”

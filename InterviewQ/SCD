@@ -1,0 +1,260 @@
+Slowly Changing Dimensions (SCDs) are a core concept in data warehousing, especially when you're working with historical data.
+
+A dimension table contains descriptive information (like customer name, address, product details).
+A slowly changing dimension is a dimension where the data changes slowly over time, and you want to track those changes.
+
+# Example
+
+Let’s say you have a customer:
+
+Customer_ID	Name	City
+101	Alice Doe	New York
+Now Alice moves to San Francisco.
+
+The question is:
+# How do we store that change?
+Should we overwrite the old city, or keep a history of where Alice lived?
+
+# SCD Types (the most common ones)
+
+# SCD Type 0 – Fixed / Immutable Dimension
+
+📌 Definition:
+Type 0 means that no changes are allowed to the dimension data after it’s inserted. The value is fixed forever.
+
+You simply insert the data once, and then ignore any future changes — the assumption is that this data should never change.
+
+Suppose you have a products dimension:
+
+Product_ID	Name	Launch_Date
+2001	Widget Pro	2021-01-15
+
+If the name of the product changes in the source system (maybe due to rebranding), in Type 0, you do not update this record in your dimension table. It stays as it was.
+
+Use Cases for Type 0
+Natural keys or IDs (e.g. Social Security Number, Product SKU)
+Historical records where original values are critical (e.g., legal documents, contract metadata)
+When you don't trust the source system's updates or want to lock down initial data
+
+# SCD Type 1 — Overwrite
+
+Old data is lost.
+You just update the record.
+
+Result:
+
+Customer_ID	    Name	    City
+101	            Alice Doe	San Francisco
+
+🟢 Simple, fast, but no history.
+
+📚 SCD Type 2 — Keep History
+
+Old record is kept, and a new version is inserted.
+
+Usually with start_date, end_date, and is_current flags.
+
+Result:
+
+Customer_ID	Name	    City	        Start_Date	End_Date	Is_Current
+101	        Alice Doe	New York	    2022-01-01	2023-12-01	FALSE
+101	        Alice Doe	San Francisco	2023-12-01	NULL	    TRUE
+
+🟢 Full history, great for reporting (e.g., "Where did Alice live last year?").
+
+# SCD Type 3 — Keep limited history
+
+Add extra columns like previous_city.
+
+Result:
+
+Customer_ID	    Name	    City	        Previous_City
+101	            Alice Doe	San Francisco	New York
+
+🟡 Only supports one level of history, not useful if data changes often.
+
+# SCD Type 4 - uses two separate tables
+
+A current dimension table — with only the latest values
+
+A historical table — where all changes are stored for auditing or tracking
+
+You can think of it as splitting the responsibilities:
+
+One table for fast access to current data
+
+Another for complete historical tracking
+
+Let’s say we have a customer whose address changes.
+
+🗂️ customer_dim (Current Table):
+
+Customer_ID	    Name	City
+101	Alice Doe	San Francisco
+
+customer_history (History Table):
+
+Customer_ID	    Name	    City	        Change_Date
+101	            Alice Doe	New York	    2023-01-01
+101	            Alice Doe	San Francisco	2024-12-01
+
+Every time the customer's data changes:
+
+You update the customer_dim table with the latest info.
+
+You append a row to customer_history to keep track of the change.
+
+Efficient querying of current state (your main dimension table stays slim)
+
+Full history available when needed
+
+Clean separation between "what is now" vs "what was before"
+
+Trade-Offs
+
+Slightly more complex ETL (you’re managing two tables)
+
+Need to sync both tables properly on updates
+
+Queries that need history require joins or unions
+
+When to Use SCD Type 4
+When you frequently query current state and don’t want to deal with history in your main dimension
+
+When auditing is required but you don't want history bloating your main dimension table
+
+# SCD Type 5
+
+SCD Type 5 =
+Type 1 (overwrite current values) in the dimension table
++
+Type 4 (store full history in a separate table)
++
+Include a surrogate key reference to the historical table
+
+This setup gives you:
+
+A current dimension table (with latest values and a surrogate key)
+
+A historical table (that stores all versions, like Type 2)
+
+A way to join facts to historical context, using the surrogate key
+
+🧩 What makes Type 5 unique?
+
+It joins current data with the surrogate key from the historical table so you can:
+
+Easily report on current state
+
+Still join fact tables to the historical version of the dimension at the time of an event
+
+📦 Example
+🗂️ customer_dim (Current Dimension — Type 1)
+
+Customer_ID	Name	    City	        Hist_ID
+101	        Alice Doe	San Francisco	501
+
+Hist_ID is a foreign key that links to the historical table.
+
+🕓 customer_history (Historical Table — Type 2 Style)
+
+Hist_ID	Customer_ID	Name	    City	        Start_Date	End_Date
+500	    101	        Alice Doe	New York	    2020-01-01	2023-12-31
+501	    101	        Alice Doe	San Francisco	2024-01-01	NULL
+
+Each change creates a new Hist_ID in the history table.
+
+📈 In the Fact Table
+Let’s say a sales fact is recorded with a reference to the historical version:
+
+sales_fact:
+
+Sale_ID	Customer_ID	Hist_ID	Sale_Amount
+9001	101	500	150.00
+9002	101	501	250.00
+This allows reporting:
+
+As-of data: "How much did Alice buy when she lived in New York?"
+
+Current data: "What’s Alice’s latest city?"
+
+✅ Why Use SCD Type 5?
+Great for auditable, historical context
+
+You can join facts to history, but also query current values quickly
+
+Excellent for data marts and star schemas in BI reporting tools
+
+⚠️ Trade-offs
+More complex ETL logic to manage:
+
+Maintain surrogate keys
+
+Keep Hist_ID in sync
+
+Needs discipline in how facts are loaded to ensure correct historical keys
+
+# SCD Type 6
+
+SCD Type 6 = A hybrid of:
+
+Type 1 (overwrite current data),
+
+Type 2 (track full history with versioning), and
+
+Type 3 (track previous value in same row)
+
+This gives you the best of all worlds:
+
+The current value
+
+The previous value
+
+The full historical record with versioning and date tracking
+
+📦 Real-world Scenario
+Imagine you're tracking customer city changes:
+
+Alice moves from New York → Los Angeles → San Francisco.
+
+With SCD Type 6, the dimension row might look like:
+
+Hist_ID	Customer_ID	Name	    Current_City	Previous_City	Start_Date	End_Date	Is_Current
+1001	101	        Alice Doe	San Francisco	Los Angeles	    2024-01-01	NULL	    TRUE
+1000	101	        Alice Doe	Los Angeles	    New York	    2023-01-01	2023-12-31	FALSE
+📌 Key Fields Explained:
+
+Field	Purpose
+Current_City	Latest known value (Type 1)
+Previous_City	One prior value (Type 3)
+Start/End	Date range for version history (Type 2)
+Hist_ID	Unique version surrogate key for the row
+Is_Current	Helps identify current row
+✅ Why Use SCD Type 6?
+You can:
+
+Track history over time ✅ (like Type 2)
+
+Quickly filter by current data ✅ (like Type 1)
+
+Compare with previous values ✅ (like Type 3)
+
+Perfect for BI tools where:
+
+You want to see both current and previous states
+
+You need a complete audit trail
+
+You want to avoid excessive joins for previous values
+
+⚠️ Trade-offs
+Most complex to implement — ETL needs to:
+
+Insert new versions with Start/End dates
+
+Shift Current to Previous
+
+Flag which row is current
+
+You’re storing a lot of duplicated data for flexibility
+
